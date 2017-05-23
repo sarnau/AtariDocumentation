@@ -1,0 +1,865 @@
+====== Atari Corporation Atari TT030 Hardware Reference Manual ======
+June 1990
+
+===== References =====
+
+The VMEbus is defined by:
+  * VMEbus International Trade Association (VITA), VMEbus Specification Manual. Revision C.1, October, 1985.
+
+The Small Computer Systems Interface (SCSI) is defined by:
+  * Adaptive Data Systems, Inc., SCSI Guidebook. Issue Number 2, June, 1985.
+
+Specific SCSI device implementation details for typical devices are available in:
+  * Adaptec Inc., Description of SCSI Command Set for Communications Devices, Revision 0.91, 1988.
+  * Archive Corporation, VIPER Product Manual. SCSI Models 2060S and 2150S, Part No. 21391-001, June, 1988.
+  * Maxtor Corporation, XT-4000S OEM Manual & Product Specification, 1014995, 1987.
+  * Quantum Corporation, Q200 Series Programmer's Manual. 81-45416, Rev. B, 1987.
+
+Details of the major commercially available chips used in the TT architecture are contained in:
+
+  * General Instrument Corp., AY-3-8910/8912 Programmable Sound Generator Data Manual. February, 1979.
+  * Logic Devices Inc., L5380/L53C80 CMOS SCSI Bus Controllers, September 1988.
+  * Motorola, Inc., MC68030 Enhanced J2-Bit Microprocessor User's Manual. 2nd. Edition, 1989.
+  * Motorola, Inc., MC68881/MC68882 Floating-Point Coprocessor User's Manual. First Edition, 1987.
+  * Motorola, Inc., MC68901 Multi-Function Peripheral, January, 1984.
+  * Motorola, Inc., MC146818A Real-Time Clock PII/s RAM (RTC), 1984.
+  * Motorola, Inc., MC6850 Asynchronous Communications Interface Adapter.
+  * Western Digital Corp., WD1772-02 Floppy Disk Formatter/Controller
+  * Zilog, Inc., Z80C30 CMOS Z-BUS SCC / Z85C30 CMOS SCC Serial Communications Controller - Preliminary Product Specification, October, 1987.
+  * Zilog, Inc., Z80C30 CMOS Z-BUS SCC / Z85C30 CMOS SCC Serial Communications Controller - Technical Manual. September, 1986.
+
+The ST compatible hardware interfaces are also described in:
+  * Atari Corporation, Engineering Hardware Specification of the Atari ST Computer System, January 7, 1986.
+  * Atari Corporation, STE Developer Addendum
+  * Atari Corporation, Intelligent Keyboard (ikbd) Protocol. February 26, 1985.
+  * Atari Corporation, [ST] DMA Controller, September 26, 1984.
+
+===== INTRODUCTION =====
+
+The TT (Thirty-two/Thirty-two bit) is the first member of a new series of Atari computers designed as enhanced versions of the existing ST and MEGA family. The TT series maintains compatibility with the ST/MEGA architecture, but uses the Motorola 68030 microprocessor and provides enhanced graphics and sound. The TT is also designed to allow it to run UNIX((Unix is a trademark of AT&T.)) without any speed penalty caused by ST compatibility constraints.
+
+The TT series are based around the high performance 32-bit Motorola MC68030 processor running at a 16 MHz clock frequency. The 68030 includes on-chip data and instruction caches which can be filled from some regions of memory in bursts of double word fetches.
+
+The architecture also includes the industry standard VMEbus to facilitate expansion. The system supports the latest revision (C.1) of the VMEbus specification. The TT can accommodate one single-Eurocard VME board.
+
+The TT series is expected to function in an environment with other TTs and even machines from different manufacturers. To facilitate connectivity, each system has an on-board port for a moderate speed LAN. If the LAN is not being used, the port can be programmed to be a standard RS232C port. Through an optional VMEbus-based or SCSI-based Ethernet controller, the TT also has the capability of connecting to heterogeneous Ethernet networks. Additionally, each TT has three standard RS-232C serial ports for connection to modems, display terminals, or digitizing tablets.
+
+The TT is intended for use with either TOS or the UNIX operating system. The initial UNIX product offering is based around UniSoft's UniPlus+ V Release 3 version 1 which is fully compatible with AT&T System V Interface Definition (SVID), the Portable Operating System Interface Specification (POSIX), and the X/Open Portability Guide. The X Window System, a network transparent window system originally developed at MIT, will also be available in the initial release. A windowing user interface running on top of X will also be provided.
+
+The hardware features of the TT series of computers includes:
+
+  * Motorola MC68030 at 16MHz
+  * Motorola MC68881/68882 Floating Point Coprocessor
+  * RAM: 2 Mbyte of dual-purpose (video/system) RAM, expandable by an add on daughterboard containing an additional 2 or 8 Mbyte of dual-purpose memory. This memory appears 64-bits wide to the video logic and 32-bits wide to the rest of the system. TT video logic requires access to this memory on a time critical basis. The remaining system logic, including the processor, can access this memory in the alternate 250 nS time slices.
+  * RAM: 4 Mb nybble-mode memory daughter-board(s) allowing another 4Mb or 16Mb expansion.
+  * ROM: 4 socketed 1 Mbit ROMs, providing 512Kb of ROM space. All four ROMs must be present, because of the 32-bit wide system bus access.
+  * internal video modes that are a superset of those in the Atari ST series Color:320x200x16,320x480x256,640x200x4,640x480x16. DuoChrome: 640x400. Monochrome: 1280x960.
+  * an analog RGB color monitor interface (for color and DuoChrome modes)
+  * a high performance ECL monitor interface (for the high resolution monochrome mode)
+  * parallel I/O port, implemented using the one of the parallel ports on the General Instruments AY-3-8910 / Yamaha YM-2149 sound chip
+  * internal speaker, that can be disabled under software control
+  * 2 async serial I/O ports (one from each of two 68901 MFPs)
+  * 2 high-speed SDLC serial I/O ports (from a Zilog 8530 SCC), one port of which can be programmed to be a LAN interface with a proprietary single channel DMA controller
+  * real time clock (RTC) with 50 bytes of non-volatile RAM
+  * ST/MEGA compatible intelligent keyboard, with mouse and joystick ports, with support for up to a 3 button mouse
+  * Atari ACSI DMA channel (for Atari Hard Disk, Laser Printer, CD-ROM, etc)
+  * floppy disk controller and interface sharing the ACSI DMA channel
+  * Musical Instrument Digital Interface (MIDI)
+  * Atari ST compatible cartridge port (128 Kbyte storage)
+  * SCSI interface using 25-pin connector implemented with the NCR 5380 SCSI controller chip and a proprietary DMA controller
+  * VMEbus for expansion: TT contains 1 single Eurocard A24/D16 and A16/D16 slave only interface
+
+===== MAIN SYSTEM =====
+
+The TT architecture is designed to be a high performance computing platform. By including the VMEbus and facilities for multi-processing the system can be expanded for future needs.
+
+==== Processor and MMU ====
+
+The TT uses the Motorola MC68030((MC68030, MC68020, MC68851, MC68881, and MC68882 are trademarks of Motorola, Inc.)) 32-bit microprocessor. This single chip contains a 68020 superset processor, a paged memory management unit, and independent instruction and data caches. The 68030 is a complex instruction set computer (CISC) that extends the 68000 instruction set and enhances the addressing modes. The processor will be clocked at 16 MHz.
+
+The MMU in the 68030 is a subset of that provided by the Motorola MC68851. In particular, the translation look-aside buffer (TLB) has been reduced to 22 entries, requiring particular care in memory assignment to avoid unnecessary descriptor thrashing.
+
+The on-chip instruction and data caches maximize processor throughput while reducing the bus bandwidth necessary to fuel the processor.
+
+==== Floating Point Coprocessor ====
+
+The TT includes a socketed Motorola MC68881 Floating Point Coprocessor. The MC68881 can be removed and replaced with the hardware compatible MC68882. There is a slight software difference in the size of the exception stack frames, but it is possible to write software that will run transparently with either part.
+
+The floating point operations are performed in accordance with IEEE Standard 754, with both 32-bit (single) and 64-bit (double) precision external access.
+
+The floating point coprocessor is run at the same clock speed as the main processor. It appears as the "standard" floating point coprocessor ID of 1 in the 68030 CPU address space.
+
+==== ROM ====
+
+The system includes on-board sockets for a set of four 1Mbit ROMs, providing a total of 512Kb ROM. Since system bus access is 32-bits wide, all four ROMs must be present. Jumpers are provided to allow the use of 27256, 27512, 27010/27C1001. and 57101/27C1000 EPROMs, in addition to 53100 ROMs. The default jumper position allows the use of 27512 EPROMs (for a total of 256 Kb of ROM) as well as 571001/27C1000 EPROMs or 531000 ROMs (for a total of 512 Kb of ROM). 32 pin sockets are provided, although 27256, 27512, and 531000 only use the bottom 28 pins.
+
+An image of the first 8 bytes of ROM resides in the first 8 bytes of the ST compatible image. These first 8 bytes (0x00000000-0x000007, or 0xFF000000-0xFF000007 in the image) are accessible //only// in supervisor mode. Attempts to read from this area in user mode, or any write, results in a bus error. A VMEbus master would have to do a privileged accesses to read the ROM at these locations. The full ROM resides at the memory location 0x00E00000-0x00EFFFFF (with an image at 0xFFE00000-0xFFEFFFFF).
+
+Among the tasks this ROM perform are system initialization, power-on diagnostics, and boot code from a floppy, ACSI device, or SCSI device.
+
+==== RAM ====
+
+The basic system includes 2 Mbytes of dual-purpose RAM which is used for both video and system memory. This is implemented by using 16 256Kbitx4 100nS DRAMs, yielding a 64-bit wide internal bus for high performance video access.
+
+The bus architecture is similar to the ST in that memory access cycles are interleaved between the MPU and the video controller in 250 nS RAM time slices, thus allowing video display memory to reside efficiently as part of main memory. During active display cycles the processor is prevented from accessing the memory but is allocated the next 250 nS time slice. The processor interfaces to this RAM through a 32-bit bus, but the video subsystem itself accesses memory on a 64-bit wide bus. The video chip (TT shifted has on-chip buffering to provide very high bandwidths for data.
+
+Single-purpose RAM daughter-boards are possible as an option. By eliminating the video timing constraints on this RAM, this memory can be made to appear faster to the processor. The daughter boards are currently implemented by using 32 1 Mbit 100 nS DRAMs. When 4 Mbit DRAMs become available, it will be possible to provide 16 Mbyte of single-purpose RAM on a single daughter card. The single-purpose memory system uses nybble mode RAMs to facilitate burst mode filling of the 6S030 caches.
+
+Additional memory can be installed in the system by plugging in a VME memory card. The VME RAM will run slightly slower than the system RAM as all VME accesses incur an extra wait state per bus cycle.
+
+The first 0x800 bytes (2K) of RAM (0x00000000-0x000007FF, or 0xFF000008-0xFF0007FF in the image) are accessible only in supervisor mode. Attempts to read or write to this area in user mode results in a bus error.
+
+==== System Control Unit ====
+
+The System Control Unit (SCU) provides an additional level of interrupt control for the system. It also contains registers that allow the software generation of interrupts. All of the SCU registers are reset at power-on and by the reset pushbutton.
+
+=== Interrupt Mask and Current Status ===
+
+The SCU contains two mask registers that permit independent control over which interrupt levels will be seen by the processor. One register masks interrupts generated on the system board and the other masks VMEbus sources. These registers are cleared at power-up or reset, disabling all interrupts.
+
+There are also interrupt request registers that show the current state of the seven interrupt request levels from each of the sources. This register shows the physical status of the interrupt lines before they are ANDed with the SCU's mask register.
+
+The motherboard sources for IRQ5 and IRQ6 can be serviced by either the 68030 or the VMEbus master. The implementation used means that IRQ5 and IRQ6 look to the 68030 like VME interrupts, and can not be masked independently with the SCU motherboard interrupt mask register.
+
+=== System Control Registers ===
+
+The SCU also contains two read/write registers that can be used for system configuration information.
+
+=== Interrupt Generator ===
+
+The system can write to an I/O address to generate a low priority (level 1) interrupt to the 68030. This I/O address contains a read/write status/control port, only the least significant bit of the least significant byte is defined. When set to 1, it generates an auto vectored level 1 interrupt. When cleared, the interrupt request is taken away.
+
+The SCU is hardwired so that:
+  * only interrupts 5 and 6 have external lACK pins and are capable of generating vectored interrupts on the motherboard (and also cause VME IRQ5 and IRQ6 respectively)
+  * SCU generated IRQl and IRQ3 are hardwired to the corresponding priorities and are always auto vectored
+  * SCU generated IRQ 1 is detected only by the MPU not the VMEbus
+  * VMEbus SYSFAIL generates a system (motherboard) IRQ7 to the MPU, but does not not generate an IRQ7 to the VMEbus. The only other source of an IRQ7 is a BMEbus card.
+
+=== Bus Timer ===
+
+The SCU also implements a system bus timer. If nothing concludes a bus cycle within In microseconds, the SCU will signal a bus error.
+
+==== DMA Controllers ====
+
+The TT series includes three independent DMA channels: 1) the low speed network port implemented on SCC serial port A, 2) the SCSI port and 3) the ST "ACSI"/Floppy DMA. The following are the DMA bus mastership priorities:
+
+^  priority  ^ function  ^
+|  highest   | ACSI/Floppy Controller  |
+|            | SCC DMA Channel  |
+|  	         | SCSI DMA Channel  |
+|  lowest    | 68030  |
+
+=== SCC and SCSI DMA Channels ===
+
+The SCC and SCSI DMA controllers assemble the bytes from the peripheral into double words for writing to the system bus. This feature is actually implemented with two independent "assembly" double words so that when one has been filled and is waiting for access to the processor bus, the second can be filling. If the second assembly word fills before the bus is released by the DMA chip, it will be written in the same bus transaction.
+
+DMA can be done to any byte boundary of any double word wide memory space, either on the main system board or on the VMEbus. DMA is done in the physical address space.
+
+The programmer's model of each of these DMA channel consists of:
+
+  * a word wide read/write status/control register that contains direction, enable and bus error bits
+  * four bytes forming a 32-bit DMA pointer,
+  * partial input register that must be read and merged with RAM contents under CPU control if the DMA input is done to a point in RAM that is not on a double word boundary or if DMA is not done in multiples of four bytes,
+  * a 32-bit wide DMA byte count <implemented in four separate bytes).
+
+A DMA controller exists for each channel: SCC and SCSI. Each DMA controller is physically implemented in two chips: one for the system bus interface, one for peripheral interface and FIFO. The bus interface controller is strapped externally for either SCSI or SCC.
+
+The software that sets up the DMAC for DMA transfers must account for the DMAC being a byte-wide peripheral appearing on the odd bytes of the address bus. This requires the 68030 either to use the MOVEP instruction or to do rotates and four separate byte output operations to put out a 32-bit address or byte count.
+
+DMA Controller Registers
+
+^  offset  ^  width  ^ function  |
+|  0x00    |   OB    | DMA Pointer Upper  |
+|  0x02    |   OB    | DMA Pointer Upper-Middle  |
+|  0x04    |   OB    | DMA Pointer Lower-Middle  |
+|  0x06    |   OB    | DMA Pointer Lower  |
+|  0x08    |   OB    | Byte Count Upper  |
+|  0x0A    |   OB    | Byte Count Upper-Middle  |
+|  0x0C    |   OB    | Byte Count Lower-Middle  |
+|  0x0E    |   OB    | Byte Count Lower  |
+|  0x10    |   W     | Data Residue Register High  |
+|  0x12    |   W     | Data Residue Register Low  |
+|  0x14    |   OB    | Control Register  |
+
+
+The control word is a bit-mapped register:
+
+^  bit  ^ function  ^
+|   0   | DMA Direction Out (1 = out to port)  |
+|   1   | Enable (0 = off, 1 = on)  |
+|  2-5  | < reserved>  |
+|   6   | Byte Count Zero (1 = terminal count)  |
+|   7   | Bus Error (1 = Bus Error occurred during DMA by this channel)  |
+
+
+To perform DMA:
+  - set the DMA controller direction
+  - set the base address
+  - set up the peripheral for DMA
+  - then set the enable bit
+
+The direction and enable bits should not be set in the same operation.
+
+If DMA input is done to anything but a double word aligned destination, or if the length is not a multiple of 4, the final byte(s) of the transfer will not be written to the system RAM. It is then the programmer's responsibility to read the Data Residue Register and merge the input with the contents of the appropriate double word in RAM. (The least significant two bits of the DMA pointer are correctly incremented, which can be used to determine how much of the Residue Register is valid,)
+
+DMA can only be done to double word width ports, like RAM and D32 VME cards.
+
+If an attempted DMA operation generates a bus error, the DMA operation is immediately disabled and the bus error bit set in the Control/Status register. The bus error status bits of each of the DMA controllers routed to individual MFP-2 input bits where they can be read or optionally used to generate an interrupt. The bus error status for a channel is automatically cleared by reading the channel's control register.
+
+The DMA byte count register generates an interrupt when the byte count reaches O. The DMA is automatically disabled by reaching the terminal count.
+
+The NCR 5380 SCSI Interface Chip must not be used in BLOCKMODE DMA for use with the TT DMA controllers. The SCC should be in programmed to use the WAIT/*REQ pin in *REQ mode when doing DMA.
+
+=== Floppy/ACSI Interface ===
+
+The ST compatible Floppy/ACSI subsystem interfaces between dual-purpose RAM and ACSI compatible peripherals, such as the SLM804 laser printer, SHxxx/Megafile hard disk drives, and Atari CD-ROM. This DMA channel is shared with the internal floppy disk controller.
+
+DMA between RAM and ACSI peripherals, and between RAM and floppy, can only be performed using the dual-purpose RAM. If a transfer is required from such a device into standard ("single-purpose") system RAM, a two stage transfer is required, using the dual-purpose RAM as an intermediate buffer.
+
+==== Real Time Clock ====
+
+The TT system includes a Motorola MC146818A Real Time Clock chip. This provides time of day (down to one second resolution), date, and a programmable periodic interrupt. The RTC is provided with a 32.768 kHz crystal that is independent of all other system clocks.
+
+The interrupt output of the real time clock chip connects to one of the MFP parallel inputs.
+
+The chip also includes 50 bytes of battery backed up (non-volatile) RAM that is used for storing diagnostic and configuration data.
+
+The chip is accessed through two consecutive word ports. The first word is a write-only port that is used to set the real time clock chip address that is desired. The second word is the readlwrite data port. When doing a write to a clock chip register, it is possible to do a double word write; the first word would set the address, and the second word the data.
+
+===== Device Subsystems =====
+
+The TT architecture supports the following device subsystems:
+
+  * SCSI
+  * ST compatible ACSI
+  * high-speed serial ports and a moderate speed network port through the SCC chip
+  * two additional serial ports and an external interrupt port connected to MFP controllers
+  * a Centronics parallel printer port driven by the Yamaha YM-2149 sound chip a ST/MEGA compatible intelligent keyboard, mouse, and joystick interface
+  * a port supporting application and diagnostic cartridges
+
+==== SCSI ====
+
+The TT implements the complete single-ended (non-differential) SCSI bus by using the NCR5380 SCSI Controller. The NCR5380 is used in 8-bit asynchronous data transfer up to 4.0 Mbytes/second.
+
+The SCSI connector provides for connection of SCSI compatible devices through a 25-pin D connector. Internally, the full 50-pin cabling is used.
+
+In a typical configuration, the SCSI bus will be used to provide the main mass storage elements of the system. The SCSI bus can also be used for removable media devices such as the Syquest cartridge drives and magnetic tape controllers. The default system hard disk will be SCSI unit 0, device 0.
+
+The SCSI bus can support up to 7 major devices (in addition to the TT itself).
+
+==== ACSI ====
+
+The ACSI interface on the TT is identical to that on the ST. The biggest concern is the use of software timing loops for delays in talking to both the controller and peripherals. It is recommended that developers use Timer A of the MFP.
+
+==== High Speed Serial Ports ====
+
+The Zilog 85C30 SCC, a dual channel. multi-protocol data communications peripheral, is included in the TT design to provide two serial ports (ports A and B).
+
+Port A can be used as either a network port or a standard low speed RS232C port. When bit 7 of the GI Sound Chip port A is a 0, LAN mode is selected. The input/output of Port A is routed to the appropriate connector: (1) if RS232C mode is selected, the port is connected to a DB-9P or (2) if the network port is selected, it is connected to an 8-pin mini-DIN connector. The output pins on the unselected port remain inactive.
+
+The SCC handles both asynchronous formats and synchronous byte-oriented protocols such as HDLC and IBM's SDLC.
+
+Port B is configured to be a low speed RS232C serial port that can be used for connecting to a modem or a local mainframe. It is pinned out on a DB-9P connector in a way that is compatible with the AT style. Modem control signals are derived directly from the 85C30 port B control lines. This port can operate with split transmit and receive baud rates.
+
+The PCLK input to the SCC is 8 MHz. The RTxCA input is provided with a 3.672 MHz clock. The input to TRxCA comes from the low speed LAN connector. RTxCB is run at 2.4576 MHz. TRxCB is generated by the Timer C output of the second (TT) MFP.
+
+=== SCC RS232 Port Pinout ===
+
+The SCC RS232 serial ports are pinned out in DB-9P connectors in a way that is compatible with the AT style. On the TT, the SCC port A RS232 connections are routed to a header on the motherboard. That header can be connected with a ribbon cable to a nine pin D connector located on the VME slot cover.
+
+SCC RS232 Pinouts
+^  pin  ^  Port A                  ^  Port B                  ^
+|       |   (RS232 Mode)           |                          |
+|  1    | Carrier Detect (I)       | Carrier Detect (I)       |
+|  2    | Receive Data (I)         | Receive Data (I)         |
+|  3    | Transmit Data (O)        | Transmit Data (O)        |
+|  4    | Data Terminal Ready (O)  | Data Terminal Ready (O)  |
+|  5    | Ground                   | Ground                   |
+|  6    | Data Set Ready (I)       | Data Set Ready (I)       |
+|  7    | Request to Send (O)      | Request to Send (O)      |
+|  8    | Clear to Send (I)        | Clear to Send (I)        |
+|  9    | --                       | Ring Indicator (I)       |
+
+
+Note: The SCC Port B Ring Indicator (RI) signal is connected to bit 6 of the MFP-2 General Purpose I/O Port (GPIP).
+
+=== LAN Connector Pinout ===
+
+The moderate speed LAN connector is an 8 pin female mini-DIN.
+
+SCC LAN Pinout (Port A) function
+^  pin  ^ function                        ^
+|   1   | Output Handshake (DTR, RS423)   |
+|   2   | Input Handshake/External Clock  |
+|   3   | Transmit Data -                 |
+|   4   | Ground                          |
+|   5   | Receive Data -                  |
+|   6   | Transmit Data +                 |
+|   7   | TRxCA/CTSA                      |
+|   8   | Receive Data +                  |
+
+==== MFP ====
+
+Two 68901 Multi-Function Peripheral (MFP) controllers are used to provide system timers. RS232C serial ports. and an interrupt controller. One MFP, designated MFP-ST, is used in a way that is compatible with the ST. It provides both a serial port and interrupt control. A second MFP provides another low speed serial port and more I/O and interrupt pins.
+
+The baud rate clock for the MFP's serial transmitter and receiver is derived from the timer D output of each MFP. Given the MFPs' 2.4576 MHz clock, baud rates up to 19.2 Kbaud can be supported on these serial ports.
+
+=== MFP Serial Port Pinouts ===
+
+Both MFP serial ports are pinned out in DB-9P connectors in a way that is compatible with the AT. On the TT, the MFP-2 serial port is routed to a header on the motherboard. That header can be connected with a ribbon cable to a nine pin D connector located on the VME slot cover.
+
+One of the MFP serial ports has a complete complement of modem control lines compatible with the ST, but pinned out in a 9 pin D connector. The other MFP serial port provides only a "three-wire" interface.
+
+MFP Serial Port Pinouts
+
+^  pin  ^ MFP-ST                   ^  MFP-2                   ^
+|       |   (RS232 Mode)           |                          |
+|  1    | Carrier Detect (I)       | --                       |
+|  2    | Receive Data (I)         | Receive Data (I)         |
+|  3    | Transmit Data (O)        | Transmit Data (O)        |
+|  4    | Data Terminal Ready (O)  | Data Terminal Ready (O) (always on) |
+|  5    | Ground                   | Ground                   |
+|  6    | --                       | --                       |
+|  7    | Request to Send (O)      | Request to Send (O) (always on)     |
+|  8    | Clear to Send (I)        | --                       |
+|  9    | Ring Indicator (I)       | --                       |
+
+
+The Ring Indicator (RD signal is connected to bit 6 of the MFP-ST General Purpose I/O Port (GPIP).
+
+=== Uncommitted I/O Pins ===
+
+The least significant two bits of MFP-2's General Purpose I/O Port are not currently used and are routed to a dual row of stakes for convenience. These are simple unbuffered TTL level signals that can be used for either input or output.
+
+==== Parallel Printer Port ====
+
+The TT architecture includes a bi-directional 8-bit parallel printer port that implements a subset of the Centronics standard. This interface is through the General Instruments A Y-3-891O / Yamaha YM-2149 Programmable Sound Generator (PSG) chip. It is pinned out in a DB-25S in a way that is a subset of the AT. The Centronics STROBE signal is generated from a PSG bit. The Centronics BUSY signal from the printer connects to one of the parallel input lines of the MFP to permit interrupt driven printing. Eight bits of read/write data are handled through I/O port B on the PSG.
+
+==== Keyboard Interface ====
+
+The TT keyboard interface is a compatible superset of the one found on the ST/MEGA computers. The keyboard is equipped with a combination mouse/joystick port and a joystick only port. The keyboard transmits encoded make/break key scan codes (with two key rollover), mouse/trackball data, joystick data, and time-of-day. The keyboard receives commands and sends data via bidirectional communication implemented with a MC6850 Asynchronous Communications Interface Adapter (ACIA). The data transfer rate is 7812.5 bits/second. All keyboard functions, such as key scanning, mouse tracking, command parsing, etc. are performed by a HD6301V1 8-bit microcomputer unit. (See the Atari Intelligent Keyboard (ikbd) Protocol. February 26, 1985.)
+
+=== Mouse and Joystick Interface ===
+
+The Atari two-button mouse is a mechanical. opto-mechanical. or optical quad nature mouse with the following minimal performance characteristics: a resolution of 100 counts/inch, a maximum velocity of 10 inches/second, and maximum pulse phase error of 50%. The joystick is a four direction switch-type joystick with one fire button.
+
+==== ROM Cartridge ====
+
+The TT's cartridge port is compatible with ST cartridges. The cartridge is physically connected through a 40 pin card edge connector ROM cartridge slot. Cartridge ROMs are mapped to a 128K memory region starting at 0x00FA0000, extending to 0x00FBFFFF (with an image at 0xFFFA0000 to 0xFFFBFFFF).
+
+==== Video Subsystem ====
+
+The TT video subsystem is designed to extend the existing ST modes. Additional modes are available on the TT that allow more colors and larger screen sizes.
+
+=== Video Configuration ===
+
+The various modes available on the TT are:
+
+ST mode
+
+^  mode  ^  resolution  ^  planes  ^  colors  ^ palette  ^
+|        |              |          | (CLUT entries & DACs) ||
+|  00    |  320x200     |    4     |  16      | 512/3-bits  |
+|  01    |  640x200     |    2     |  4       | 512/3-bits  |
+|  10    |  640x400     |    1     |  1       | Monochrome  |
+
+TT mode
+
+^  mode  ^  resolution  ^  planes  ^  colors  ^ palette  ^
+|        |              |          | (CLUT entries & DACs) ||
+|  000   |  320x200     |    4     |  16      | 4096/4-bits  |
+|  001   |  640x200     |    2     |  4       | 4096/4-bits  |
+|  010   |  640x400     |    1     |  1       | 4096/4-bits (Duochrome)  |
+|  011   |  <reserved>  |          |          |   |
+|  100   |  640x480     |    4     |  16      | 4096/4-bits  |
+|  101   |  <reserved>  |          |          |   |
+|  110   |  1280x960    |    1     |  -       | Monochrome  |
+|  111   |  320x480     |    8     |  256     | 4096/4-bits  |
+
+As the table indicates, the modes are set through either the respective (ST or TT) Shift Mode Register. In the ST mode, 16 word-wide registers comprise the ST Color Palette (also known as the Color LookUp Table - CLUT). Contained in each entry are nine-bits of color: 3-bits each for red, green, and blue. Therefore, a total of 512 possible color combinations (8 x 8 x 8) are selectable for each entry.
+
+Mode 00 (320x200x4) can index all sixteen palette colors; while mode 01 (640x200x2) can index just the first four (Reg0 - Reg3) palette colors. The monochrome mode (10 - 640x400x1) is instead provided with an inverter for inverse video controlled by bit 0 of palette color 0 (ST Reg 0). Color palette 0 is also used to assign a border color while in multi-plane mode.
+
+Additional resolution modes are available by programming the shifter through the TT Shift Mode register. In these modes, there are a maximum of 256 TT Color Palette Registers each containing 12-bits of color: 4-bits each for red, green, and blue. Therefore, a total of 4096 possible color combinations (16 x 16 x 16) are selectable. Through the ST Palette Bank (lowest 4 bits of the TT Shift Mode Register) one of 16 banks m~y be selected from the TT Color Palette for use in ST modes. This allows modes 000, 001, 010, and 100 to seemingly select from up to 256 registers by simply setting the palette bank. Only mode 111 (320x480x8) can directly index all 256 registers.
+
+Duochrome mode is an extension of the monochrome mode found on the Atari ST. Instead of being limited to just black and white, Duochrome mode allows the display of two programmable colors. TT Palette Register 254 is normally used for the '0' color, and Register 255 is used for the '1' color. Just as in the ST, the screen colors can be inverted by setting 01 in ST (or TT) Palette Register 0.
+
+HyperMono is a special mode that combines two of the output DACs to give 8 bits of control of the level of all three guns. The green output from the selected color palette entry provides the most significant 4 bits and the blue output provides the least significant 4 bits.
+
+=== Video RAM/Controller/Display Interface ===
+
+Video display memory is configured as logical planes (1, 2, 4, or 8) of interleaved 16-bit words of contiguous memory to form one 32,000 byte (for ST modes) or 153,600 byte (for TT modes) screen buffer starting at any 8 byte boundary (in dual-purpose RAM only). The starting address of display memory is loaded into the Video Base High, Video Base Mid, or Video Base Low Registers (the most significant byte of the thirty two bit addresses is always zero, i.e. within the ST image). This register is loaded into the Video Address Counter (High/Mid/Low) at the beginning of each frame. The address counter is incremented as the screen buffer is read.
+
+Screen buffer is transferred to the video chip (TT shifter) buffer 64-bits at a time. The shifter then loads the video shift register where one bit from each plane is shifted out and collectively used as the index (plane 0 appears first in RAM and provides the least significant bit of each pixel) to a specific ST or TT Palette Register (depending on the Shift Mode).
+
+=== Monitor Connector ===
+
+The video output is provided on a 3 row 15 pin connector similar to the one used on standard VGA.
+
+^  Pin  ^ Function  ^
+|   1   | Red  |
+|   2   | Green  |
+|   3   | Blue  |
+|   4   | High Resolution Monochrome Out +  |
+|   5   | Ground  |
+|   6   | Red Return  |
+|   7   | Green Return  |
+|   8   | Blue Return  |
+|   9   | Monochrome Detect (input)  |
+|  10   | Ground  |
+|  11   | Open  |
+|  12   | Open  |
+|  13   | Hsync  |
+|  14   | Vsync  |
+|  15   | High Resolution Monochrome Out -  |
+
+==== Sound Subsystem ====
+
+The TT architecture extends the music subsystem presently available on the ST/MEGA computers. The TT mixes the output of the existing ST PSG sound system with a new DMA-driven dual-channel D-to-A subsystem. The TT includes an internal speaker driven by these two sources for simple beeps, and can be connected to an external stereo amplifier for high-fidelity sound.
+
+The TT is also equipped with a Musical Instrument Digital Interface (MIDI) which provides high speed serial communication of musical data to and from more sophisticated synthesizer devices.
+
+=== Programmable Sound Generator ===
+The ST sound system using the General Instruments AY-3-8910 / Yamaha YM-2149 Programmable Sound Generator is present in the TT. The YM-2149 Programmable Sound Generator produces music synthesis, sound effects, and audio feedback. With an applied clock input of 2 MHz, the PSG is capable of providing a frequency response range between 30 Hz (audible) and 124 KHz (post-audible). The generator places minimal amount of processing burden on the main system (which acts as the sequencer) and has the ability to perform using three independent voice channels. The three sound channel outputs are mixed together and sent to the volume and tone control chip.
+
+(Reference Engineering Hardware Specification of the Atari ST Computer System, page 10)
+
+=== DMA Sound ===
+
+The DMA sound subsystem is the same as the one in the STE.
+
+=== Musical Instrument Digital Interface (MIDI) ===
+
+Musical Instrument Digital Interface (MIDI)
+
+The MIDI allows the integration of the TT series with music synthesizers, sequencers, drum boxes, and other devices possessing MIDI interfaces. High speed (31.25 Kbaud) serial communication of keyboard and program information is provided by two ports, MIDI OUT and MIDI IN (the MIDI OUT also includes MIDI THRU data). The MIDI communicates through the MC6850 Asynchronous Communications Interface Adapter (ACIA) to the system bus. The data transfer rate is a constant 31.25 Kbaud of 8-bit asynchronous data. (Reference Engineering Hardware Specification of the Atari ST Computer System, pages 11 and 17 for more information on MIDI and the ACIA.)
+
+===== VMEbus =====
+
+The TT provides the option for additional expansion by implementing the industry standard VMEbus, revision C.1. The TT has one single-high VMEboard backplane. Memory space is partitioned to allow the 68030 to access A24/D16 and A16/D16 cards.
+
+==== System Controller ====
+
+System Controller
+The main system board serves as the VMEbus system controller (a slot 1 "card") and implements the following functions:
+  * single-level (level-three) VMEbus arbiter
+  * IACK* daisy-chain driver
+  * global SYSCLK (16 MHz, independent of processor speed)
+  * global VMEbus time-out that drives BERR*
+
+The level-three arbiter is designed to meet the VMEbus specification requirements.
+
+The IAC * daisy-chain driver is designed to meet the vMEbus specification requirements.
+
+	The SYSRESET* line is driven low when (0 power-up occurs, (2) the reset
+pushbutton is depressed, or (3) the 68030 asserts its RESET* signal.
+IV.2 Address Partitioning The TT's A24/D16 VMEbus interface'is fixed at locations: 0xFE000000xFEFEFFFF. The A 16/016 space occupies 0xFEFF0000-0xFEFFFFFF.
+
+==== VME Interrupter ====
+
+The system can write to an I/O address to generate a level 3 interrupt on the VMEbus. It can monitor a status register that indicates when that interrupt has been acknowledged and serviced. An I/O address contains a read/write status/control port, only the least significant bit of the least significant byte is defined. When set to 1, it generates a vMEbus level 3 interrupt. When cleared, the interrupt request is taken away.
+
+Note that the level 3 interrupt must be masked off (either by setting the processor's IPL or by masking the interrupt in the system controller) or the 68030 will be immediately interrupted.
+
+The system board responds to a vMEbus interrupt acknowledge cycle with the status ID of 0xFF.
+
+This feature is included for compatibility with future machines in the TT series.
+
+===== Memory, I/O, & Interrupt Map =====
+
+The size field has the following designations:
+<file>
+DW   Double word
+
+W    Word wide
+
+OB   odd byte (A byte wide port that appears in the
+least significant byte of the defined words. The most
+significant byte of the words is undefined. If desired,
+these ports may be accessed as bytes by adding 1 to the
+specified word addresses.)
+
+EB   Even byte (A byte wide port that appears in the
+most significant byte of the defined words. The least
+significant byte of the words is undefined.)
+
+MEMORY MAP as seen by the 68030
+
+MEMORY MAP
+
+address            size  cache- use
+                         able
+00000000-00EFFFFF DW     yes    ST (dual-purpose) RAM,
+00F00000-00F7FFFF W      no     <reserved TT I/O>
+00F80000-00FFFFFF W      no     ST & TT IO
+01000000-013FFFFF DW     yes    TT fast RAM (optional)
+01400000-FDFFFFFF --     --     <reserved>
+FE000000-FEFEFFFF W      no     VMEbus A24:D16
+FEFF0000-FEFFFFFF W      no     VMEbus A16:D16
+FF000000-FFFFFFFF --     --     ST compatible image
+                  (a write to FFD000xx sets the single-
+purpose fast RAM refresh rate; and simultaneously
+generates a bus error)
+</file>
+
+ST Compatible Image (Base Address 00000000 OR FF000000)
+
+ST Image
+<file>
+address            size  cache- use
+                         able
+000000-000007      DW    yes    ROM
+  (image of first 8 bytes of main ROM, supervisor mode, read only)
+000008-9FFFFF      DW    yes    "dual-purpose" RAM
+  (memory in the range 000008-0007FF is only accessible
+in supervisor mode)
+A00000-DFFFFF      -     yes    <reserved>
+E00000-EFFFFF      DW    yes    Main ROM
+F00000-F9FFFF      -     no     <reserved>
+FA0000-FBFFFF      W     no     Cartridge ROM
+FC0000-FF7FFF      -     no     <reserved>
+FF8000-FFFFFF      W     no     ST & TT I/O Space
+
+ST/TT I/O MAP (Offset within ST image FF8000)
+(Base Address 00FF8000 OR FFFF8000)
+offset	  size use
+8000-8001 B    Memory Controller
+8002-81FF -    <reserved>
+8200-8263 OB   TT video Subsystem
+8264-83FF -    <reserved>
+8400-85FF W    TT Palette
+8600-86FF W    ST DMA and FDC
+8700-8715 OB   SCSI DMA Control
+8716-877F -    <reserved>
+8780-878F OB   SCSI controller
+8790-87FF -    <reserved>
+8800-8803 EB   ST Sound Chip
+8804-88FF -    <reserved>
+8900-891F OB   DMA Sound Control
+8940-895F -    <reserved>
+8960-8963 OB   Real Time Clock and NVRAM
+8964-8BFF -    <reserved>
+8C00-8C15 OB   SCC DMA Control
+8C16-8C7F -    <reserved>
+8C80-8C87 OB   SCC
+8C88-8DFF -    <reserved>
+8E00-8E1F OB   System Control Unit (SCU)
+8E20-91FF -    <reserved>
+9200-9201 EB   Configuration Switches
+9202-9FFF -    <reserved>
+A000-A3FF W    TT main board peripheral expansIon
+A400-F9FF -    <reserved>
+FA00-FA3F OB   MFP ST
+FA40-FA7F -    <reserved>
+FA80-FABF OB   MFP-2
+FAC0-FBFF -    <reserved>
+FC00-FC03 EB   IKBD Interface
+FC04-FC07 EE   MIDI ACIA
+FC08-FFFF -    <reserved>
+</file>
+
+LOCAL I/O DEVICES
+
+
+ST/TT VIDEO SUBSYSTEM
+<file>
+8200 RW   ---- ----  xxxx xxxx   Video Base High
+8202 RW   ---- ----  xxxx xxxx   Video Base Mid
+8204 RO   ---- ----  xxxx xxxx   Video Address Counter High
+8206 RO   ---- ----  xxxx xxxx   Video Address Counter Mid
+8208 RO   ---- ----  xxxx x000   Video Address Counter Low
+820A RW   ---- --0x              ST Sync Mode (set to 1)
+820B WO              0000 0000   <reserved>
+820C RW   ---- ----  xxx  x000   Video Base Low
+8240 RW   ---- Rrrr  Gggg Bbbb   ST Color Palette Reg0
+8242 RW   ---- Rrrr  Gggg Bbbb   ST Color Palette Reg1
+...
+825E RW   ---- Rrrr  Gggg Bbbb   ST Color Palette Reg15
+</file>
+Note: The capital letters "R", "G", "B" denote the least significant bit in the actual color value.
+<file>
+8260 RW   ---- --ss  ---- ----   ST shift Mode
+          (ss                00 320x200, 4 plane
+          01 640x200, 2-plane
+          10 640x400, 1-plane
+          11 <reserved>
+          )
+8262 RW   s--h -mmm  ---- bbbb   TT shift Mode
+               (s sample and hold mode)
+               (h hyper mono mode)
+               (mmm
+               000 320x200x4
+               001 640x200x2
+               010 640x400x1
+               100 640x480x4
+               110 1280x960x1
+               111 320x480x8)
+               (bbbb ST palette bank)
+
+TT VIDEO SUBSYSTEM
+
+8400 RW   ---- rrrR  gggG bbbB   TT Palette Reg0
+8402 RW   ---- rrrR  gggG bbbB   TT Palette Reg1
+...
+85FE RW   ---- rrrR  gggG bbbB   TT Palette Reg255
+
+ST ACSI DMA
+8600           <reserved>
+8602           <reserved>
+8604 RW   ---- ----  xxxx xxxx   Disk Data Path (WDC)
+8606 RO   ---- ----  ---- -xxx   DMA Status
+8606 WO   ---- ---x  xxxx xxxx   DMA Mode (WDL)
+8608 RW   ---- ----  xxxx xxxx   DMA Pointer High
+860A RW   ---- ----  xxxx xxxx   DMA Pointer Mid
+860C RW   ---- ----  xxxx xxxx   DMA Pointer Low
+
+
+DMA SCSI1
+8700 RW   ---- ----  xxxx xxxx   DMA Pointer Upper
+8702 FW   ---- ----  xxxx xxxx   DMA Pointer Upper-Middle
+8704 RW   ---- ----  xxxx xxxx   DMA Pointer Lower-Middle
+8706 RW   ---- ----  xxxx xxxx   DMA Pointer Lower
+8708 RW   ---- ----  xxxx xxxx   Byte Count Upper
+870A RW   ---- ----  xxxx xxxx   Byte Count Upper-Middle
+870C RW   ---- ----  xxxx xxxx   Byte Count Lower-Middle
+870E RW   ---- ----  xxxx xxxx   Byte Count Lower
+8710 RO   xxxx xxxx  xxxx xxxx   Data Residue Register High
+8712 RO   xxxx xxxx  xxxx xxxx   Data Residue Register Low
+8714 RW   ---- ----  bz00 00ed   Control Register
+               (             b - bus error during DMA
+                   (read only, cleared by read)
+               z - byte count zero
+                   (read only, cleared by read)
+               e - DMA enable 0=off, 1=on
+               d - DMA direction:
+                    0=in from port
+                    1=out to port
+               )
+
+SCSI Controller (5380)
+8780 OB Data Register
+8782 OB Initiator Command Register
+8784 OB Mode Register
+8786 OB Target Command Register
+8788 OB ID Select/SCSI Control Register
+878A OB DMA Start/DMA Status Register
+878C OB DMA Target Receive/Input Data
+878E OB DMA Initiator Receive/Reset
+
+PROGRAMMABLE SOUND GENERATOR
+(also provides bi-directional parallel printer port and miscellaneous output latch)
+8800 RO   xxxx xxxx  ---- ----   PSG Read Data
+8800 WO   0000 xxxx  ---- ----   PSG Register Select
+8802 WO   xxxx xxxx  ---- ----   PSG Write Data
+Port A Bit Assignments
+7    *LAN Select (0 routes SCC Port A to LAN connector)
+6	 *Speaker Disable	(0 disables internal speaker)
+5	 Printer Port Strobe
+4    *DTR (MFP-ST serial port)
+3    *RTS (MFP-ST serial port)
+2    *Floppy 1 select
+1    *Floppy 0 Select
+0    *Floppy Side 0 Select
+
+Port B Bit Assignments
+7-0 Printer Port bits 7-0
+
+DMA SOUND SUBSYSTEM
+8900 RW	  ---- ----  0000 00re    Sound DMA Control
+               (
+               r - Repeat
+                    0 = Single Frame
+                    1 = Repeat
+               e - Enable
+                    0 = Off (reset state)
+                    1 = On
+               )
+8902 RW   ---- ----  xxxx xxxx    Frame Base Address (high)
+8904 RW   ---- ----  xxxx xxxx    Frame Base Address (med)
+8906 RW   ---- ----  xxxx xxxx    Frame Base Address (low)
+8908 RW   ---- ----  xxxx xxxx    Frame Address Counter (high)
+890A RW   ---- ----  xxxx xxxx    Frame Address Counter (med)
+890C RW   ---- ----  xxxx xxxx    Frame Address Counter (low)
+890E RW   ---- ----  xxxx xxxx    Frame End Address (high)
+8910 RW   ---- ----  xxxx xxxx    Frame End Address (med)
+8912 RW   ---- ----  xxxx xxxx    Frame End Address (low)
+8920 RW   0000 0000  a000 00bb    Sound Mode Control
+               (
+               a - Mode
+                   0 = Stereo (reset state)
+                   1 = Mono
+               bb - Sample Rate
+                   00 = 6258 Hz
+                   01 = 12517 Hz
+                   10 = 25033 Hz
+                   11 = 50066 Hz
+               )
+8922 RW   xxxx xxxx  xxxx xxxx    MICROWIRE Data register
+8924 RW   xxxx xxxx  xxxx xxxx    MICROWIRE Mask register
+
+REAL TIME CLOCK (MC146818A)
+8960 OB   Real Time Clock Address Register
+8962 OB   Real Time CLock Data Register
+DMA SCC
+8C00 RW   ---- ----  xxxx xxxx    DMA Pointer Upper
+8C02 RW   ---- ----  xxxx xxxx    DMA Pointer Upper-Middle
+8C04 RW   ---- ----  xxxx xxxx    DMA Pointer Lower-Middle
+8C06 RW   ---- ----  xxxx xxxx    DMA Pointer Lower
+8C08 RW   ---- ----  xxxx xxxx    Byte Count Upper
+8C0A RW   ---- ----  xxxx xxxx    Byte Count Upper-Middle
+8C0C RW   ---- ----  xxxx xxxx    Byte Count Lower-Middle
+8C0E RW   ---- ----  xxxx xxxx    Byte Count Lower
+8C10 RO   xxxx xxxx  xxxx xxxx    Data Residue Register High
+8C12 RO   xxxx xxxx  xxxx xxxx    Data Residue Register Low
+8C14 RW   ---- ----  xxxx xxxx    Control Register
+               (
+               b - bus error durina DMA
+                   (read only, cleared by read)
+               z - byte count zero
+                   (read only, cleared by read)
+               e - DMA enable 0=off, 1=on
+               d - DMA direction:
+                    0=in from port
+                    1=out to port
+               )
+8530 SCC
+8c80 OB   SCC1 A control
+8c82 OB   SCC1 A data
+8C84 OB   SCC1 B control
+8C86 OB   SCC1 B data
+SCU
+8E00 OB   System Interrupt Mask (B7 - B1; B0 unused)
+8E02 OB   System Interrupt State (read only; before mask register)
+8E04 OB   System Interrupter (B0 = generate interrupt 1)
+8E06 OB   VME Interrupter (B0 = generate interrupt VME IRQ3)
+8E08 OB   SCU General Purpose Register 1 (reset only at power-up)
+8E0A OB   SCU General Purpose Register 2 (reset only at power-up)
+8E0C OB   VME Interrupt Mask (B7 - B1; B0 unused)
+8E0E OB   VME Interrupt State (read only; before mask register)
+
+MFP-ST (ST compatible)
+FA00 OB   GPIP
+FA02 OB   AER
+FA04 OB   DDR
+FA06 OB   IERA
+FA08 OB   IERB
+FA0A OB   IPRA
+FA0C OB   IPRB
+FA0E OB   ISRA
+FA10 OB   ISRB
+FA12 OB   IMRA
+FA14 OB   IMRB
+FA16 OB   VR
+FA18 OB   TACR
+FA1A OB   TBCR
+FA1C OB   TCDCR
+FA1E OB   TADR
+FA20 OB   TBDR
+FA22 OB   TCDR
+FA24 OB   TDDR
+FA26 OB   SCR
+FA28 OB   UCR
+FA2A OB   RSR
+FA2C OB   TSR
+FA2E OB   UDR
+
+MFP2
+FA80 OB   GPIP
+FA82 OB   AER
+FA84 OB   DDR
+FA86 OB   IERA
+FA88 OB   IERB
+FA8A OB   IPRA
+FA8C OB   IPRB
+FA8E OB   ISRA
+FA90 OB   ISRB
+FA92 OB   IMRA
+FA94 OB   IMRB
+FA96 OB   VR
+FA98 OB   TACR
+FA9A OB   TBCR
+FA9C OB   TCDCR
+FA9E OB   TADR
+FAA0 OB   TBDR
+FAA2 OB   TCDR
+FAA4 OB   TDDR
+FAA6 OB   SCR
+FAA8 OB   UCR
+FAAA OB   RSR
+FAAC OB   TSR
+FAAE OB   UDR
+
+ikbd ACIA
+FC00 EB   Keyboard ACIA Control
+FC02 EB   Keyboard ACIA Data
+
+MIDI ACIA
+FC04 EB   MIDI ACIA Control
+FC06 EB   MIDI ACIA Data
+
+Note: Two TT glue chip pins, IOCSI and IOCS2, output the
+decode of offsets within the I/O area of 0xA000-0x00A1FF
+and 0xA200-0xA3FF, respectively. These pins minimize
+decoding when adding peripherals to the TT main board
+sometime in the future.
+
+INTERRUPT ASSIGNMENTS
+int    system   vector      VME               vector
+7      VMEbus   AutoVector  IRQ7              programmable
+       SYSFAIL
+6      none     -           MFPs & IRQ6       programmable
+5      none     -           SCC & IRQ5        programmable
+4      VSYNC    AutoVector  IRQ4              programmable
+3      (Note 3) -           VME Interrupter   AutoVector
+                            IRQ3              programmable
+2      HSYNC    AutoVector  IRQ2              programmable
+1      System   AutoVector  IRQ1              programmable
+       Interrupter
+
+Note 1: Within each level, the system interrupt has
+higher priority than the VME interrupt. And, within the
+shared Leve15 and Leve16 interrupts, the part on the
+motherboard has higher priority than the VME interrupt.
+Note 2: The VME interrupts use their interrupt status
+byte as their interrupt vector.
+Note 3: The level 3 system interrupt mask must be
+enabled for the level 3 VME interrupt to actually be
+generated.
+
+MFP Interrupt Assignments
+MFP-ST (ST Compatible)
+  int   function
+GPIP7	Monochrome Monitor Detect / DMA Sound IRQ
+GPIP6	Ring Indicator
+TimerA
+RxRDY
+RxERR
+TxEMPTY
+TxERR
+TimerB
+GPIP5   ACSI / FDC Interrupt
+GPIP4   MIDI/Keyboard Interface
+TimerC
+TimerD
+GPIP3   <reserved>
+GPIP2   CTS
+GPIP1   DCD
+GPIPO   Centronics BUSY
+MFP
+GPIP7   SCSI controller IRQ (active high)
+GPIP6   RTC IRQ (active low, cleared by reading RTC OxOC)
+TimerA
+RxRDY
+RxERR
+TxEMPTY
+TxERR
+TimerB
+GPIP5   SCSI DMAC Interrupt (active low)
+GPIP4   <reserved>
+TimerC
+TimerD
+GPIP3   Ring Indicator (SCC B)
+GPIP2   SCC DMAC Interrupt (active low)
+GPIP1   general purpose I/O pin
+GPIP0   general purpose I/O pin
+</file>

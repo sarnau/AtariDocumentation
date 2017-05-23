@@ -1,0 +1,735 @@
+====== TOS 1.4 Release Notes ======
+August 17, 1988
+
+Atari Corporation\\
+1196 Borregas Avenue\\
+Sunnyvale. CA 94086\\
+
+
+=== COPYRIGHT ===
+
+Copyright 1988 by Atari Corp. All rights reserved. No part of this publication may be reproduced, transmitted, transcribed, stored in a retrieval system, or translated into any language or computer language, in any form or by any means, electronic, mechanical, magnetic, optical, chemical, manual, or otherwise, without the prior written permission of Atari Corp., 1 196 Borregas Ave., Sunnyvale, CA 94086.
+
+
+=== DISCLAIMER ===
+
+ATARI CORP. MAKES NO REPRESENTATIONS OR WARRANTIES WITH RESPECT TO THE CONTENTS HEREOF AND SPECIFICALLY DISCLAIMS ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE. Further, Atari Corp. reserves the right to revise this publication and to make changes from time to time in the content hereof without obligation of Atari Corp. to notify any person of such revision or changes.
+
+=== TRADEMARKS ===
+
+Atari, ST, Mega, and TOS are trademarks or registered trademarks of Atari Corporation.
+
+TOS 1.4 Release Notes were printed in the United States of America.
+
+First Edition: August 17, 1988
+
+This document was produced with an Atari Mega 4 computer using Microsoft Write and an Atari SLM804 laser printer.
+
+
+===== DESKTOP =====
+Changes made:
+  - All background windows are updated after a file copy, move, delete, disk copy, or disk format operation.
+  - Pressing <Esc> forces the Desktop to read the directory of the topped window. Before, it would only do so if a media change had been detected.
+  - Show Info for files or folders now use the same dialog. The name field allows the tile or folder to be renamed, but file attributes are only active for files.
+  - Disk Copy and Disk Format have been combined into one dialog box. Whichever operation is chosen from the Desktop is selected in this new box when it appears. For example, if one disk A: is dragged to disk B:, the Copy/Format box appears with "Copy" selected. By clicking the "Format" button, the user can choose to format a disk.
+  - The "Format Disk dialog now defaults to Exit" if <Return> is pressed.
+  - The Desktop now formats disks with an MSDOS compatible boot sector
+  - A file can be moved as well as copied. If the source and destination are on the same device or partition, the file is moved by renaming it via GEMDOS. Otherwise, the file is copied and the original file deleted. To use: select the files, hold down <Control>, and drag the files to the destination. A "Move File(s)" box appears.
+  - Copy, Delete, and Move operations can be interrupted with <Undo>. Holding down <Undo> will result in a dialog asking if the user wishes to abort.
+  - The Copy, Delete, and Move dialog box shows destination folder and file name as the operation progresses. The file name is displayed immediately in the box as the operation begins.
+  - Time/Date stamp is now preserved across Copies and Moves
+  - GEM programs can be autobooted from disk. This is done through the "Install Application" dialog, where the user can select "Auto" (boot) status, then "Save Desktop." The autoboot application can also be uninstalled from this dialog. The autoboot application can be either a "PRG" or a "TOS", but not a "TTP" (TOS Takes Parameters.) The resulting DESKTOP.INF file contains the following line: *Z <type> <full pathname of application>, where <type> contains 01 for a graphic program (PRG) or 00 for a nongraphic program (TOS).
+  - install Disk Drive has "Install" as its default, and when you install a drive that already exists, it updates the existing icon.
+  - install Application" has a "Remove button, and "Install" is now the default. This dialog is also used to choose Normal or Autoboot status. (See "GEM programs can be autobooted")
+  - On an installed application, the Desktop now passes the full pathname of the document clicked if the document is not in the same directory as the application. If it is, the Desktop only passes the filename. In the DESKTOP.INF file, it stores the full pathname of the installed application.
+  - The DESKTOP.INF file is compatible across all existing versions of TOS.
+  - A warning message appears if there is insufficient space to save DESKTOP.INF.
+  - Set Preferences determines if the system confirms name conflicts. If "Confirmation required for: File Overwrites" is set to "No", files will be overwritten without warning. If a foldername conflict occurs, a dialog appears regardless.
+  - Upon a Name conflict during copy, the user has three choices: //Copy// goes ahead and copies the file (overwriting the one on the destination), //Skip// does nothing with the particular file but continues the copy operation, and //Quit// aborts the entire copy operation.
+  - Desktop shows as many files as possible inside each window. The only limit is the amount of free memory in the system. This removes the old static file allocation limit of 400.
+  - The Desktop opens the next window where the last was closed.
+  - "Show Info" now allows a folder to be renamed.
+  - Show/Print text file functions have been completely rewritten.
+  - Features in "Show" are:
+    * Hitting <space> in the middle of a page makes the More come 24 lines from now, rather than having the same effect as waiting for the More and then hitting <space>.
+    * d, D and D cause the More to come 1/2 page from now; <Return> makes it come one line from now.
+    * q, Q and C cause the output to stop immediately.
+    * Line wrap is not modified; if the VT52 Emulator was in no-wrap mode, that's what you get.
+  - Features in "Print" are:
+    * The keyboard gets checked every 16 characters.
+    * q, Q, ^C and <Undo> all cause printing to abort.
+  - When files are copied, the pointer now changes to a "busy bee" even if the Desktop is set to copy without confirmation.
+  - When copying files and an error occurs, the arrow now becomes a busy bee when Retry is clicked.
+  - Cancel or Retry now work as expected when an error occurs while formatting a disk.
+  - When copying disks between drives A: and B:, with no disk in source or destination, an error occurs. Cancel now returns the user to the Disk Copy Dialog.
+  - Single drive disk copies require as few disk swaps as possible. All available memory is used as a copy butter.
+  - If an error occurs when a drive is 'opened', a blank window no longer results.
+  - The Desktop's copyright notice now lists 1986, 1987, //and// 1988. 1988 was added.
+  - When recovering from an application crash, wind_update(FALSE) is set before going into the main event_multi that waits for user interaction. This is handled by the new 'wind_new' function. (See "wind new documentation"
+  - If you try to get a directory of a drive without a disk, 'Cancel' now aborts the operation and returns you to the Desktop.
+  - Many dialogs are more concise. This includes error dialogs like the one about "Your output device is not receiving data..." and many others.
+  - Date separator in "show file info" and "show folder info" are now the "/" Before, they were inconsistent, one using "/" and the other "-".
+  - Leading underscores in numeric fields of boxes have been replaced with spaces.
+  - Bytes Available and Bytes Used fields have been expanded to accommodate values up to 2147483647 (Hex 7FFFFFFF).
+
+===== AES =====
+Changes made:
+  - The File Selector has been reworked. The improvements are as follows:
+	* An application can now send a "title" string to the File Selector. (See "fsel_exinput()')
+	* FS provides 16 drive label buttons, for easier drive selection.
+	* FS now handles <RETURN> differently on text editing: after editing a pathname, pressing <RETURN> enters the path and redisplays the FS. After editing a filename, the FS exits.
+	* If the user passes in a path with a leading slash, this path is appended to the default directory of the default drive internally, and files from the resulting directory are displayed.
+	* The static file allocation of 100 per FS has been removed.
+	* FS now handles long pathnames.
+	* FS now handles multiple "abort/continue" errors correctly.
+	* FS preserves current DTA buffer addresses, clip rectangles, and default directories.
+	* New bindings are available for the FS.
+	* The new FS is the same size rectangle as the old.
+	* The sequence of the file selector redraw has been improved cosmetically.
+  - It a diskette is removed when the file selector is called, the system now handles "Cancel" on the resulting error dialog correctly.
+  - 'appl_init()" call returns a version number of 0130 in global(0).
+  - Executing a program through the AES shell sets the default directory that contains that file.
+  - A wind_get() call with field parameter of WF_SCREEN returns the address and length of the AES menu/alert buffer.
+  - Toggling between True and False on Menu Bar no longer corrupts the semaphor.
+  - The dot-pattern in the move bar of a window is no longer confused by a redraw attempt such as after a dialog has disappeared.
+  - AES now handles editable fields followed by non-editable characters in dialog boxes.
+
+==== AES Call Documentation ====
+
+What follows is supplemental documentation to the existing AES manual, or clarifications of existing documentation.
+
+=== Supplement to: 6.4 Object Library Routines ===
+
+ob_ednewidx - not used.
+
+ob_edtree - the address of the object tree containing the object with the text to be edited.
+
+ob_edreturn = objc_edit( ob_edtree, ob_edobject, ob_edchar, ob_edidx, ob_edkind);
+
+=== Supplement to: 7.3.3 FORM_ALERT ===
+
+Purpose:	Display an alert.
+
+Section 7.2 describes the complete sequence of calls internal to FORM ALERT.
+
+Parameters:
+  control(0) = 52
+  control(1) = 1
+  control(2) = 1
+  control(3) = 1
+  control(4) = 0
+  int_in(0) = fo_adefbttn
+  intout(0) = fo_aexbttn
+  addr_in(0) = fo_astring
+
+fo_adefbttn	the form's DEFAULT exit button (see section 7.1.3.1)
+	0 - no DEFAULT exit button
+	1 - first exit button
+	2 - second exit button
+	3 - third exit button
+fo_aexbttn	a number identifying the exit button selected by the user
+	1 - first exit button in string
+	2 - second exit button in string
+	3 - third exit button in string
+fo_astring	the address of the string containing the alert
+	* Each alert line must be less than 30 characters.
+	* Each button must be less than 10 characters.
+
+Sample call to C language binding:
+<code c>
+fo_aexbttn = form_alert( fo_adefbttn, fo_astring);
+</code>
+
+=== Supplement to 7.3.4 FORM_ERROR ===
+
+Purpose:	Display an error box.
+
+Parameters:
+  control(0) = 53
+  control(1) = 1
+  control(2) = 1
+  control(3) = 0
+  control(4) = 0
+  int_in(0) = fo_enum
+  nt_out(0) = fo_eexbttn
+
+fo_enum	the GEMDOS error codes in PC DOS format (from 1 onwards).
+fo_eexbttn	a code identifying the user's exit button selection.
+	1 - first exit button in string
+	2 - second exit button in string
+	3 - third exit button in string
+
+Sample call to C language binding:
+<code c>
+fo_eexbttn = formerror( fo_enum);
+</code>
+
+Error messages:
+  fo_enum 2,3,18 This application cannot find the folder or file you just tried to access.
+  fo_enum 4 This application does not have room to open another document. To make room, close any document that you do not need.
+  fo_enum 5 An item with this name already exists in the directory, or this item is set to Read-only status.
+  fo_enum 8, 10, 11 There is not enough memory for the application you just tried to run.
+  fo_enum 15 The drive you specified does not exist.
+
+=== Supplement to: 13.3.2 SHEL_WRITE ===
+
+Purpose: Tells GEM AES whether to run another application and, if so, which application to run.
+
+Parameters:
+  control(0) = 121
+  control(l) = 3
+  control(2) = 1
+  control(3) = 2
+  control(4) = 0
+  int_in(0) = sh_wdoex
+  int_in(1) = sh_wisgr
+  int_in(2) = sh_wiscr
+  int_out(0) = sh_wreturn
+  addr_in(0) = sh_wpcmd
+  addr_in(1) = sh_wptail
+
+Description:
+sh_wdoex	a coded instruction to exit the system or run another application when the user exits the current application.
+	0 - exit and return to GEM DESKTOP
+	1 - run another application
+sh_wisgr	a code for whether the next application is a graphic application.
+	0 - not a graphic application
+	1 - graphic application
+sh_wiscr	currently ignored by the AES.
+sh_wreturn	a coded return message
+	0 - an error exists
+	n - no error exists
+sh_wpcmd	the address of the new command file to execute
+ah_wptail	the address of the command tail for the next program
+	Note: The first byte of the command tail buffer contains the length (in bytes) or the command tail. The actual command tail begins at the second byte of the buffer.
+
+Sample call to C language binding:
+<code c>
+sh_wreturn = shel_write(shwdoex, sh_wisgr, sh_wiscr, sh_wpcmd, sh_wptail );
+</code>
+
+
+=== Supplement to: 13.3.5 SHEL_GET ===
+
+Purpose:	Let the application read data from the AESs shell internal buffer. Note: The length of the get data buffer should not be more than 1024 bytes.
+Parameters:
+  control(0) = 122
+  control(l) = 1
+  control(2) = 1
+  control(3) = 1
+  control(4) = 0
+  intin(0) = sh_glen
+  addr_in(0) = shgbuff
+  int_out(0) = sh_greturn
+
+sh_greturn	a coded return message
+	0 - an error exists
+	n - ( positive integer )  no error exists
+sh_glen  the length of the buffer.
+sh_gbuff	the address of the buffer.
+
+Sample call to C language binding:
+<code c>
+sh_greturn = shel_get( sh_gbuff, sh_glen);
+</code>
+
+=== Supplement to: 13.3.6 SHEL_PUT ===
+
+Purpose: Let the application save data into the AES's shell internal buffer.
+Note:	Currently, the AES Desktop uses this buffer to store the desktop.inf data. Any usage of this buffer may corrupt the data that are already stored there. The length of the data that goes into the buffer should be no more than 1024 bytes.
+Parameters:
+  control(0) = 123
+  control(1) = 1
+  control(2) = 1
+  control(3) = 1
+  control(4) = 0
+  int_in(0) = sh_plen
+  addrin(0) = sh_pbuff
+  int_out(0) = sh_preturn
+
+sh_preturn	a coded return message
+	0 - an error exists
+	n - ( positive integer )  no error exists
+sh_plen	the length of the buffer.
+shpbuff	the address of the buffer.
+
+Sample call to C language binding:
+<code c>
+shpreturn = shel_put( sh_pbuff, sh_plen);
+</code>
+
+==== Discussion of New AES Calls ====
+
+There are two new AES calls, FSEL_EXINPUT and WIND_NEW. They are documented below:
+
+=== 10.3.2 FSEL_EXINPUT ===
+Purpose:	This function has the same functionality as the FSEL_INPUT call except that it accepts an additional input parameter called fs_label to display a string of 30 characters on the top of the file selector box. This string will replace the original 'File Selector' string. The purpose of this additional feature is to allow the program to show more information, e.g. Reading or Writing, while the user selects a file.
+Parameters:
+  control(0) = 91
+  control(1) = 0
+  control(2) = 2
+  control(3) = 3
+  control(4) = 0
+  intout(0) = fs_ireturn
+  int_out(1 ) = fs_iexbutton
+  addr_in(0) = fsiinpath
+  addrin(1) = fs_innsel
+  addr_in(2) = fslabel
+
+fs_ireturn	A coded return message.
+	0 - an error exists
+	n - (positive integer)  no error exists
+fs_iexbutton	A code identifying the exit button selected by the user.
+	0 - Cancel
+	1 - OK
+fs_iinpath	The address of the buffer that holds the initial directory specification displayed in the File Selector dialog box. This buffer will also hold the directory specification that was in the File Selector dialog box when the user selected OK or Cancel.
+fs_innsel	The address of the buffer that holds the initial selection displayed in the File Selector dialog box. This buffer will also hold the selection that was in the File Selector dialog box when the user selected OK or Cancel.
+fs_label	The address of the string that will be displayed on the top of the File Selector box.
+
+Sample call to C language binding:
+<code c>
+fs_ireturn = fsel_exinput( fsjnnpath, fsinnsel, &fs_iexbutton, fs_label);
+</code>
+
+
+=== 11.3.10	WIND_NEW ===
+Purpose:	Closes and deletes all windows, resets the wind_update() function, flushes all the windows' buffers and restores mouse ownership back to the system.
+Parameters:
+  control(0) = 109
+  control(1) = 0
+  control(2) = 0
+  control(3) = 0
+  control(4) = 0
+
+Sample call to C language binding:
+<code c>
+wind_new();
+</code>
+
+===== VDI =====
+Changes made:
+  - Ptsin has been expanded to allow 512 vertices. This has been true (but undocumented) since 4/22/87 (Mega) ROMs.
+  - vqt_extent now works correctly when rotation is 270 degrees.
+  - vq_mouse has been modified: to be more robust.
+
+===== GEMDOS [BDOS/BIOS/XBIOS] =====
+Changes made:
+  - The so-called "40-folder bug" is fixed. There are still limits, mainly on the depth of folders and the accumulated depth of open files, but these limits are very tar away and can still be extended with 'FOLDRXXX.PRG" which is widely available. Also, a folder only takes up space when it is 'active", not just when you've seen it. (See 'Discussion of OS Pool".)
+  - By and large, the restrictions on Malloc have been lifted (i.e. the 20 blocks/process limit.) Malloc still uses the same internal OS Pool" as folders, so it should still be used sparingly. Use Malloc for large chunks, and use another manager (such as a C compiler library's malloc() function) for general-purpose memory management.
+  - An exhausted OS Pool now results in predictable (and safe) behavior. The machine will lock up with a message to the effect that the pool has been exhausted, and you need to use FOLDRXXX.PRG to enlarge it. It no longer gives incorrect results; nor does it damage disks.
+  - The FAT searching code for hard disks and floppies is much faster. This speedup is dramatic when using "Show info...", or when creating a file on a heavily loaded hard disk.
+  - Sector buffering in GEMDOS has been improved, and the user can add buffers to it to improve system performance. Old buffering was inefficient, and (in one case) actually wrong.
+  - Frename can now rename a folder; it cannot, however, move the folder around in the directory structure, the way it can a file.
+  - GEMDOS now prevents duplicate filenames; it no longer occasionally creates two files with the same name.
+  - Ddelete immediately following a Dcreate now works correctly. Formerly, this would fail but a second Ddelete would work.
+  - Dcreate (mkdir) now detects and handles errors. Dcreate now recovers correctly from failures while creating a directory (such as write errors and diskfull errors), and does not partially build subdirectories.
+  - Fread and Fwrite with a length argument of zero do not hang.
+  - The archive" attribute bit (0x20) is now correctly maintained: it is set when a file is created and when a file is written to. Archive/backup programs can check this bit to see if the file needs to be backed up, and can clear the bit when they have backed it up. (See "Attribute Byte Discussion".)
+  - Fattrib checks the legality of what is being attempted; for example, an attempt to change the directory bit of a file or subdirectory will be denied.
+  - The entries for "." and ".." in subdirectories are correctly datestamped.
+  - Fsettime and Fsetdate cause the BIOS time and date to be set, too. The reverse is also true: setting the BIOS date and time affects the GEMDOS values. This is the same behavior as in the 4/22/87 (Mega) ROMs, where it was necessary for the realtime clock chip.
+  - Fdatime no longer byteswaps the user's input values when writing a new dateltime.
+  - Fdatime returns EIHNDL for invalid handles and handles which refer to character devices (which have no date or time).
+  - Cconws is faster than before when stdout is redirected.
+  - Redirection to the printer (handle 3, PRN:") works correctly. Previously, GEMDOS would make the BIOS call for input status on the printer device, which is not supported.
+  - Console handling of S and C is consistent. C during any "cooked" input or output function (Cconin, Cconout, Cnecin, Cconws, Cconrs) causes the current process to terminate.
+  - Cconrs has been improved: it handles keystrokes where the highorder bit of the ASCII code for the character is 1 ' and no longer echoes the input line to the console when the standard input is redirected to come from a file.
+  - Character 110 functions (including 'crawio' and 'Cconout') work predictably when redirected. In particular, input status and output status work.
+  - Console input typeahead buffers are implemented correctly, and no longer grow without bound into the surrounding memory.
+  - Keyboard repeating has been improved: if you hit a key (say, '#'), and hold it down, you will get lots of #'s. If you then hit '$' without lifting your finger off '#' you will get one $ then many $'s. The $'s won't stop repeating until you let go of the $' key, even if you do let go of the '#' key in the meantime.
+  - The OS Pool has been reduced to 11/20/85 size This may allow some programs that ran on 11/20/85 ROMs in 52OSTs but failed on Mega ROMs to run.
+  - Reset is available from the keyboard. Hold down the Control and Alternate keys, and press "Delete" (below "Backspace"). This accomplishes the same thing as hitting the reset button. A cold boot is provided through ControlAlt(right) ShiftDelete. May be disabled by a userdefined keyboard handler.
+  - Program startup is now as fast as Mega ROMs: faster than 11/20/85 ROMs.
+  - Floppies are checked for bootability" on warm and cold starts, even if an autobooting hard disk is attached. Before, this was done only on a cold boot.
+  - Closing a standard handle (0-5) causes it to revert to its default BIOS device definition; previously this was undefined. The normal way to deal with a standard handle is to Fdup it to make a copy, Fforce it to whatever you want, then Fforce from the copy when you're done to revert back to what it was. Closing now works, to at least get it back to a known state.
+  - Disks are formatted to be compatible with the IBM PC The Flopfrnt XBIOS call has been changed to introduce more identification at the start of each track. This is to increase compatibility with some IBM 3.5" floppy disk controllers, which need more padding between the index pulse and the first sector on the disk. Also. BIOS 'protobt' creates MSDOS format floppy boot sectors. Programs which do not use these calls to format the disk will not be affected.
+  - Pexec handles exceptional cases correctly. Pexec no longer causes bombs or leaves files open, and it releases memory correctly. It can also deal with files having more than 32K of relocation information.
+  - Rsconf(-2,-1,-1,-1,-1,-1) now returns the last baud rate value set by Rsconi If the first	argument to Rsconf is 2, the rest are ignored.
+  - The structure of the private part of the DTA (used for Fsfirst/Fsnext) has changed. Applications that counted on its (reserved, undocumented) structure may break.
+  - GEMDOS now recognizes "media change" better: previously, it sometimes missed.
+
+
+==== DISCUSSION OF NEW SYSTEM VARIABLES ====
+
+Starting with the 4/22/87 (Mega) ROMs, there are three more system variables which you can access: pointers to them are in the system header block. A pointer to the system header block can be found at address $4f2 (_sysbase).
+
+At offset $20 from the address at _sysbase is a pointer to the variable "_root." root is a pointer which holds the base of the ospool, the internal memory used by GEMDOS. This pointer is used by FOLDR100.PRG. You can still add pool to the OS the same way as before, but you should know that the OS will take the pool you added and use it D/FFERENTL Yfrom the way it was used before. The rule is: once you give memory to the OS, DON'T TOUCH IT after that.
+
+At offset $24 from _sysbase is a pointer to the variable kbshift, a word which holds the keyboard shift state bits. This is updated at the interrupt level.
+
+At offset $28 from sysbase is a pointer to the variable _run, a longword which holds the process ID (basepage address) of the process GEMDOS is currently executing.
+
+All these variables are for reading only -- unpredictable and bad things can happen if they are written to. Kbshift is the most useful of these, because it lets you check for a keyboard shift key sequence very quickly. For instance, the following combination of routines can be used to test for both left and right shift keys down, which you could use to cause a break in your program.
+
+
+<code c>
+int *p_kbshift;
+init()
+{
+  long _sysbase = *( (long*)0x4f2);
+  p_kbshift = *(long *)(_sysbase + 0x24);
+}
+
+#define kbtest() { if ( (*(p_kbshift) & 0x03) == 0x03) abort(); }
+</code>
+
+After init() is called, using the macro kbtest() inside the main loop of your program is a fast way to detect both shift keys down -- a signal that the user wants to abort. This is much faster than using the Kbshift() BIOS call, and amounts to the same thing.
+
+==== DISCUSSION OF RESET BAILOUT VECTOR ====
+
+The "reset bailout vector" does not work as previously documented. The old documentation states that you can place the address of a routine at _resvector, place the magic number $3141526 in _resvalid, and your routine will get called when the user hits the reset button. So far, that is all true. The documentation continues, saying that you can return to the reset routine (presumably, after doing whatever you wanted to do at reset time) with the instruction "JMP (a6)" this is incorrect: "JMP $24(a6)" is the correct instruction.
+
+==== ADDING BUFFERS TO GEMDOS ====
+You can add buffers to GEMDOS to improve system performance. There are two buffer lists: one list for the FATs, and one for root directories and the rest of the disks. A buffer control block (BOB) can look like this:
+
+<code c>
+struct _bcb
+{
+	struct _bcb *blink;       /* -> next BCB */
+	int         b_negl;       /* initialize to -1 */
+	int         b_private[5]; /* don't touch */
+	char        *b_bufr;      /* -> 512-byte buffer */
+	char        b_space[5121; /* 512-byte buffer */
+}
+</code>
+
+[In the OS, the buffer control block and the 512-byte data block are separate, not one after the other like this. That doesn't matter here.]
+
+To add a buffer, do this:
+  - Allocate a BCB (call it 'b').
+  - Set b.b_negl to -1 ($FFFF).
+  - Set b.b_bufr to &(b.bspace[0]).
+  - Do one of these things:
+	*  To add this buffer to the FAT list, set b.b_link to the current value of _bufl[0] (the longword at $4b2), and set _bufl[0] = &b.
+	* To add this buffer to the dir/data list, set b.b_link to the current value of _bufl[1] (the longword at $4b6), and set _bufl[0] = &b.
+
+Repeat the above once per buffer you want to ail, cate Then terminate and stay resident, reserving the memory you just gave to the OS.
+
+==== DISCUSSION OF OS POOL ====
+
+There are internal limits in GEMDOS which programmers and users must understand. In a broad sense, you should know that these limits have to do with the maximum depth of your hierarchical file structure (subdirectories), and the number of open files you can have at once. In most cases, users will never come up against any of these limits.
+
+The limits come into play when you have lots of files open at the same time, and they are deep in different subdirectory trees. Also, programs which call the operating system function Malloc (memory allocator) influence these limits  lots of Malloc calls means less space is available for keeping track of open files and the subdirectories leading up to them.
+
+Technically, the limits are as follows: there are 80 blocks in the system's "OS pool"  two blocks are used per active folder. An "active" folder is one which is the root directory of the device it's on, or which has open files, or which is somebody's current directory, or which has an "active" child (subdirectory). Yes, this is a recursive definition. Remember that each process has a current directory on every logical device, but also remember that one folder only takes up two blocks, no matter how many reasons it's "active."
+
+In addition, one block is used per open file, and 1/4 block is used per memory chunk (allocated or free) in the system memory.
+
+When files are closed, memory chunks are freed, and when processes terminate, blocks are treed back into the OS pool.
+
+The improvement over previous ROMs is this: the old definition of "active" was "seen"  getting a list of the files in a directory caused all the folders there to take up blocks in the pool. In addition, blocks were never freed in the pool. Also, once parts of the pool had been used for managing Malloc memory chunks, they were unavailable for managing folders, and vice versa. All these restrictions are lifted.
+
+it is still possible to run out of OS pool, of course. The program FOLDR100.PRG was released by Atari and is part of the HDX (harddisk utilities) distribution. It adds memory to the OS pool, and it still works, adding memory to the new kind of pool, too. Placing this program in your AUTO folder causes 200 more blocks to be added to the OS pool, which is room for 100 more folders (remember, only ACT/L'Efolders take up room) or 800 more memory chunks, or any combination.
+
+The name FOLDR100.PRG can be changed: the three digits in the name are interpreted as the number
+of "folders" you want to add  at two blocks each. So FOLDRO5O.PRG would add only 100 blocks, while FOLDR200.PRG would add 400. No matter where the program is started from, it looks for itself in the \AUTO\ folder of the boot device to determine how many blocks to add.
+
+it is to be stressed that this program usually will not be necessary. Only if you have an inordinate number and depth of folders, open files, etc. will you run out of pool, because it is so much more efficiently managed than before.
+
+In the unlikely event that you do run out of pool, the following message will appear on your screen:
+
+<file>
+*** OUT OF INTERNAL MEMORY:
+*** USE FOLDR100.PRG TO GET MORE
+
+*** SYSTEM HALTED ***
+</file>
+
+(This message appears in English regardless of the country you are in.)
+
+It is regrettable but true that there is nothing you can do at this point but hit the reset button or use the keyboard reset combination (CTRL-ALT-DELETE). Remember what you were doing when this happened: were you trying to create a directory that was 50 levels deep in the hierarchy? Were you opening the tenth different file in the tenth different subdirectory? If you really want to be able to do whatever you were stopped from doing, use FOLDR100.PRG (or increase the "100" if you're already using it).
+
+Note: the system call Malloc will never cause a panic: it will just return 0, meaning it couldn't satisfy the request. When this happens, however, your program has stretched the limits of the system, because that means there is not even 1/4 of one block available for the memory manager. At this point a welldesigned program will detect the condition (out of memory) and terminate, freeing up enough blocks to be useful.
+
+
+==== DISCUSSION OF ATTRIBUTE BITS ====
+
+Disclaimer: this isn't how it should be; this is how it is.
+
+^  Attribute bit  ^  Name          ^ Comments  ^
+|     0x01        |  Read-only     | Denies delete and open for write.  |
+|     0x02        |  Hidden        | See below.  |
+|     0x04        |  System        | See below.  |
+|     0x08        |  Volume label  | Exclusive (no other bits should be set)  |
+|     0x10        |  Subdirectory  | Exclusive (no other bits should be set)  |
+|     0x20        |  Archive       | File is new or has been modified. (Doesn't work in old system, will in new: literally, "file is new or has been written to.")  |
+|     0x40        |  RESERVED      |  |
+|     0x80        |  RESERVED      |  |
+
+File attribute 0x08 is exclusive: no other bits should be set. Same with 0x10. These restrictions are NOT enforced by the current operating system, but they will be by the g. one. Files with illegal attribute combinations are not guaranteed to work predictably.
+
+This is a list of matching rules for attributes in Fsfirst / Fsnext searches:
+
+  - If input attribute == 0x08, include ONLY if (file attribute == 0x08).
+  - If file attribute & 0x21 (archive or R/O), or file attribute == 0, include.
+  - If ( (file attribute) & (input attribute) ) != 0, include.
+
+So, with "ia" the input attribute and "fa" the file attribute, match if this expression is TRUE:
+
+<code c>
+((!fa && (ia != 8)) || ((ia | 0x21) & fa))
+/* A	  B              C            D */
+</code>
+
+(A) && (B) means fa 0 matches any search except 0x08. (C) & (D) means a one bit match between fa and ia matches, but also that fa with archive or read-only set will cause a match regardless.
+
+This means that for a hidden file to be hidden, it can't be R/O or ARCHIVE. Same for a system file. A file which is both hidden and system (but nothing else) will appear when either of these bits is set in the input attrbute.
+
+By #3, subdirectories are included when (input & 0x10) != 0. Same with volume labels and (input & 0x08) != 0.
+
+You can Fcreate files with any combination of the ARCHIVE, R/O, HIDDEN, and SYSTEM bits. You cannot use Fattrib to change to an illegal combination, and you cannot use Fattrib, Frename, Fopen, or Fdelete on labels or subdirectories.
+
+
+
+==== DISCUSSION OF Pexec() ====
+
+The correct arguments for Pexec are (and always have been):
+
+<code c>
+long	errcode = Pexec(0,prgfile,cmdline,envptr);     /* load & go */
+long	basepage = Pexec(3,prgfile,cmdline,envptr);    /* load, don't go */
+long	errcode = Pexec(4,0L,basepage,0L);             /* just go */
+long	basepage = Pexec(5,0L,cmdline,envptr)          /* just create a base page */
+
+char    *prgfile;	                                   /* the file to load */
+char    *cmdline;                                      /* command line; first byte is its length */
+char    *envptr;                                       /* 0L or points to double-null-terminated env */
+</code>
+
+If the envptr argument is 0L, the child inherits a copy of your environment. See the discussion of the environment string for more about this.
+
+The "command line" argument is not a normal "C" string. It is a character buffer where the first byte is the length of the remaining text, and that text is also nullterminated. Pexec copies this buffer up to the first null byte OR up to 126 characters into the new basepage. Argument parsers use the length byte to know when to stop.
+
+Pexec mode 0 is the only one which really works reliably. The others run into trouble with memory and file ownership and things like that. Use them only with extreme caution. 
+The environment string passed to Pexec is defined as a series of null-terminated strings. The suggested format for these strings is the same as MS-DOS and UNIX (UNIX is a trademark of AT&T Bell Labs):
+
+  NAME1=value\0
+  NAME2=value2\0
+  ...
+  NAMEn=vaIuen\0\0
+
+All that is enforced, however, is the trailing doublenull: the environment string is copied up to the first double-null.
+
+The Desktop starts programs with a slightly different environment string:
+
+  PATH=0A:\00
+
+This is a bug, and should not be considered the "official" environment format.
+
+==== FORCING MEDIA CHANGE ====
+<code>
+*
+*
+*	mediach: cause media-change on a logical device.
+*
+*	USAGE:
+*	    encode = mediach(devno); /* returns 1 for error */
+*       int errcode, devno;
+*
+*	This procedure causes a media change by installing a new
+*	handler for the mediach, rwabs, and getbpb vectors; for device
+*	devno, the mediach handler returns "definitely changed," and
+*	the rwabs handler returns E_CHNG, until the new getbpb handler
+*	is called. The new getbpb handler un-installs the new
+*	handlers.
+*
+*	After installing the new handlers, this procedure performs a
+*	disk operation (e.g. open a file) which makes GEMDOS check
+*	the media-change status of the drive: this will trigger the
+*	new rwabs, mediach and getbpb handlers to do their things.
+*	
+*   RETURNS: 0 for no error, 1 for error (GEMDOS didn't ever do a
+*	getbpb call; should never happen.)
+*	 
+*
+.globl		_mediach
+_mediach:
+	move.w	4(sp),d0
+	move.w	d0,mydev
+	add.b	#'A',d0
+	move.b	d0,fspec		; set drive spec for search first
+
+loop:
+	clr.l	(sp)			; get super mode, leave old ssp
+	move.w	#$2O,(sp)		; and "super" function code on stack
+	trap	#1
+	addq	#6,sp
+	move.l	d0,(sp)
+	move.w	#$2O,(sp)
+
+	move.l	$472,oldgetbpb
+	move.l	$47e,oldmediach
+	move.l	$476,oldrwabs
+
+	move.l	#newgetbpb,$472
+	move.l	#newmediach,$47e
+	move.l	#newrwabs,$476
+
+    ; Fopen a file on that drive
+
+	move.w	#0,(sp)
+	move.l	fspec,(sp)
+	move.w	#$3d,(sp)
+	trap    #1
+    addq	#8,sp
+
+    ; Fclose the handle we just got
+
+	tst.l	d0
+	bmi.s	noclose
+
+	move.w	d0,(sp)
+	move.w	#$3e,(sp)
+	trap	#1
+	addq	#4,sp
+
+noclose:
+	moveq	#O,d7
+	cmp.l	#newgetbpb,$472 ; still installed?
+	bne.s	done	        ; nope
+	moveq	#1,d7	        ; yup! remove & return TRUE
+	move.l	oldgetbpb,$472
+	move.l	oldmediach,$47e
+	move.l	oldrwabs,$476
+done:
+	trap	#1				; go back to user mode (use stuff
+	addq	#6,sp			; left on stack above)
+	move.l	d7,d0
+	rts
+
+*
+*
+* new getbpb: if it's our device, uninstall vectors;
+*             in any case, call the old getbpb vector (to really
+*             get it)
+*						 
+* 
+newgetbpb:
+		move.w	mydev,d0
+		cmp.w	4(sp),d0
+		bne.s	dooldg
+		move.l	oldgetbpb,$472	; it's mine: uninstall new vectors
+		move.l	oldmediach,$47e
+		move.l	oldrwabs,$476
+dooldg:	rnove.l	oldgetbpb,a0	; continue here whether mine or not: call old.
+		jmp		(a0)
+
+*
+*
+* new mediach: if it's our device, return 2: else call old.
+*
+*
+newmediach:
+		move.w	mydev,d0
+		cmp.w	4(sp),d0
+		bne.s	dooldrn
+		moveq	#2,d0			; it's mine: return 2 (definitely changed)
+		rts
+dooldm:	move.!	oldmediach,a0	; not mine: call old vector.
+		jmp		(a0)
+
+*
+*
+* newrwabs: return E_CHG (14) if it's my device
+*
+*
+newrwabs:
+		move.w	mydev,d0
+		cmp.w	$e(sp),d0
+		bne.s	dooldr
+		moveqi	#14,d0
+		rts
+dooldr:	move.l	oldmediach,a0
+		jmp		(a0)
+
+.data
+fspec:	dc.b	"X:\\X",0	; file to look for (doesn't matter)
+
+.bss
+mydev:		ds.w	1
+oldgetbpb:	ds.l	1
+oldmediach:	ds.l	1
+oldrwabs:	ds.l	I
+
+*
+*
+* end of mediach
+*
+* 
+</code>
+
+==== MISCELLANEOUS DOCUMENTATION ====
+
+The arguments to Fdatime are incorrectly documented: the correct usage is:
+<code c>
+Fdatime(timeptr,handle,wflag)
+int *timeptr;   /* ptr to 2 ints */
+int handle;		/* handle to read/write */
+int wflag;		/* 1 to write from timeptr to file, 0 to read */
+</code>
+ 
+The approved method of determining isatty is as follows:
+
+<code c>
+int isatty(handle)
+int handle;
+{
+	long oldoffset;
+	long rc;
+
+	oldoffset = Fseek(0L,handle,1);
+	rc = Fseek(1L,handle,0);
+	Fseek(oldoffset,handle,0);
+	if (rc == 1 ) return 0;
+	return 1;
+}
+</code>
+
+Megamax C implements isatty using Fdatime.
+ 
+GEMDOS error numbers are documented wrong: ENMFIL is -49, not -47, and ENSAME is -48.
+
+Rsconf was documented as 'void' but actually returns the old values of ucr,rsr,tsr,scr registers. They are byte-packed in that order (high-to-low order) in the LONG return value. It always did, but wasn't documented as such until now.
+
+AHDI adds devices to the system starting with drive C, without regard to _drvbits and existing drives. Also, 4/22/87 (Mega) ROMs clear _drvbits on warm boot, unlike 11/20/85 ROMs, so eternal RAMdisks which used that as their telltale stopped working for this reason (possibly among others).
+
+Bconout to the printer returns 0 for failure, !0 for success. This is used for the "your output device is not responding" message in the desktop. This is not handled through the critical error handler. This has been true of all ROMs. (GEMDOS just happens to return the leftover value from D0, so using the GEMDOS Cprnout() function returns this, too. Newer GEMDOS explicitly returns the status from the BIOS call from Cprnout.)
+ 				   	
+The Super() call is incorrectly documented: Super(1L) interrogates supervisor mode. It returns -1L if you're in super mode, and 0L if user mode. [The original documentation said that Super(-1L) returned 1L if in super mode. In fact, Super(-1L) gives an address error.]
+
+Super(0L) returns the old supervisor stack pointer, and returns with the processor in supervisor mode. The argument 0L means "use my old user stack as the supervisor stack." There is usually plenty of space on the user stack for both you and any interrupts, etc. which come along.
+
+The Super() call is intended to work like this
+<code c>
+extern long trap1();
+*define Super(x) trap1(0x20,x)
+
+super_sample()
+{
+	long 	oldssp;
+
+	/* get super mode */
+	oldssp = Super(0L);
+
+	/* do stuff in super mode; ssp is old usp. Don't call AES! */
+
+	/* get back to user mode */
+	Super(oldssp);
+}
+</code>
+
+There may be some vagaries of using it in other ways: be careful. Calling AES will blow up in a big way, because AES uses usp to store your registers (even if it's called from supervisor mode).
+ 
+The XBIOS documentation for the Sctscrccn call states that the new physical screen base being set will take effect at the next VBLANK. The fact is, it takes effect immediately.
+
+The system variable screenpt has the behavior that when it is NULL, nothing happens, but when it is nonnull, it gets stuffed into the hardware as the physical screen base at VBLANK time. (Since the VBLANK routine doesn't clear it, it keeps stuffing the same value over and over -- no big deal, just wasted time.)
+
+If you mix both of these tricks to change the physical screen base, you will find they don't work together. If you use either one exclusively, it will work as it always has -- the documentation notwithstanding. 
+
+Do not Frename or Fdelete an open file. If you Fdelete a file which somebody else has open, it will be denied. If you Fdelete a file which //YOU// have open, GEMDOS closes the file and then deletes it. //UNFORTUNATELY// there is a bug: GEMDOS closes the file, but not the file's handle. The handle lives on in the OS Pool, taking up space forever. Frename is worse: it doesn't even //ATTEMPT// to close the file or deny access.
+
+The version number is the best way to check the version of the ROMs. It lives at the second word of the ROM (which is to say, at offset $2 from the start of the OS header, which is pointed to by _sysbase (at $4f2))
+
+The 11/20/85 (original) ROMs have the version number $0100. The 4/22/87 (Mega) ROMs have the version number $0102. The latest ROMs (TOS 1.4) have the version number $0104.
+
+You can check the version number of GEMDOS specifically using its Sversion call, and you can check the date in the OS header, but the version number is the best bet because it is the same across all countries, whereas the date sometimes isn't.
